@@ -85,21 +85,16 @@
     .brand-mark {
       width: 66px;
       height: 66px;
+      display: grid;
+      place-items: center;
       flex: 0 0 auto;
-      overflow: hidden;
-      padding: 3px;
+      color: var(--red);
       background: white;
-      border: 2px solid white;
+      border: 3px solid white;
       border-radius: 50%;
       box-shadow: 0 5px 14px rgba(135, 0, 25, .18);
-    }
-
-    .brand-mark img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: contain;
-      border-radius: 50%;
+      font: 900 14px/1 Arial, sans-serif;
+      letter-spacing: -.03em;
     }
 
     .brand-name { font-size: 28px; font-weight: 900; letter-spacing: .02em; }
@@ -149,11 +144,15 @@
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      background: linear-gradient(145deg, #ff5168, #b90727);
+      background:
+        radial-gradient(circle at 32% 24%, rgba(255,255,255,.55), transparent 12%),
+        linear-gradient(145deg, #ff4863 0%, #ed1436 42%, #a90023 100%);
       box-shadow:
-        0 18px 30px rgba(180, 15, 45, .28),
+        inset 0 0 0 6px #ff8a9b,
+        inset 0 0 0 10px #a90726,
+        0 19px 32px rgba(170, 8, 40, .32),
         0 0 0 7px white,
-        0 0 0 10px rgba(230, 20, 51, .28);
+        0 0 0 10px rgba(230, 20, 51, .24);
     }
 
     .wheel-lights {
@@ -162,12 +161,13 @@
       z-index: 1;
       border-radius: 50%;
       background: repeating-conic-gradient(
-        from -4deg,
-        transparent 0deg 12deg,
-        rgba(255, 222, 114, .95) 12deg 15deg,
-        transparent 15deg 27deg
+        from -3deg,
+        transparent 0deg 11deg,
+        #fff7c7 11deg 14deg,
+        #ffc940 14deg 17deg,
+        transparent 17deg 30deg
       );
-      filter: drop-shadow(0 0 4px white);
+      filter: drop-shadow(0 0 5px rgba(255, 246, 178, .95));
       pointer-events: none;
     }
 
@@ -178,7 +178,10 @@
       width: calc(100% - 44px);
       height: calc(100% - 44px);
       border-radius: 50%;
-      box-shadow: 0 0 0 4px rgba(255,255,255,.92);
+      box-shadow:
+        0 0 0 4px #fff,
+        0 0 0 7px #ffc748,
+        inset 0 0 24px rgba(123, 0, 27, .12);
     }
 
     .pointer {
@@ -200,9 +203,10 @@
       width: 31px;
       height: 31px;
       transform: translateX(-50%) rotate(45deg);
-      background: linear-gradient(135deg, #ff3a57, #c70c2d);
-      border: 4px solid white;
+      background: linear-gradient(135deg, #ff6277, #dc0c31 62%, #a90323);
+      border: 4px solid #fff5d5;
       border-radius: 7px 50% 50% 50%;
+      box-shadow: inset 3px 3px 4px rgba(255,255,255,.35);
     }
 
     .panel {
@@ -361,16 +365,20 @@
       line-height: 1.55;
     }
 
-    .result-logo {
-      width: 58px;
-      height: 58px;
+    .result-brand {
+      width: 70px;
+      height: 52px;
       margin: 0 auto 7px;
-      display: block;
-      object-fit: contain;
-      background: #fff;
-      border: 2px solid #ffd0d8;
-      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(145deg, #ff3c58, #cf092b);
+      border: 3px solid #fff;
+      border-radius: 17px;
       box-shadow: 0 5px 12px rgba(207, 18, 50, .14);
+      outline: 1px solid #ffd0d8;
+      font: 900 14px/1 Arial, sans-serif;
+      letter-spacing: .02em;
     }
 
     .result.winner { animation: pop .45s cubic-bezier(.2, .9, .25, 1.25); }
@@ -409,9 +417,7 @@
 <body>
   <div class="page">
     <header class="brand">
-      <div class="brand-mark">
-        <img src="assets/mixue-snow-king-logo.png" alt="蜜雪冰城雪王 Logo">
-      </div>
+      <div class="brand-mark" aria-label="MIXUE">MIXUE</div>
       <div>
         <div class="brand-name">蜜雪冰城</div>
         <div class="brand-store">MIXUE · KOVAN</div>
@@ -490,8 +496,6 @@
     const phoneError = document.getElementById("phoneError");
     const resultMsg = document.getElementById("resultMsg");
     const dateDisplay = document.getElementById("dateDisplay");
-    const logoImg = new Image();
-    logoImg.src = "assets/mixue-snow-king-logo.png";
     const testModeEnabled = new URLSearchParams(window.location.search).get("test") === "1";
     let spinning = false;
     let testPrizeIndex = 0;
@@ -534,10 +538,20 @@
         ctx.moveTo(0, 0);
         ctx.arc(0, 0, radius, start, end);
         ctx.closePath();
-        ctx.fillStyle = prize.color;
+        const segmentGradient = ctx.createRadialGradient(0, 0, radius * .12, 0, 0, radius);
+        if (prize.color === "#ef2443") {
+          segmentGradient.addColorStop(0, "#ff5870");
+          segmentGradient.addColorStop(.62, "#ee1738");
+          segmentGradient.addColorStop(1, "#c70a2c");
+        } else {
+          segmentGradient.addColorStop(0, "#ffffff");
+          segmentGradient.addColorStop(.68, "#fff9ef");
+          segmentGradient.addColorStop(1, "#f8e5c4");
+        }
+        ctx.fillStyle = segmentGradient;
         ctx.fill();
-        ctx.strokeStyle = "#f8bd43";
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#f5b82f";
+        ctx.lineWidth = 4;
         ctx.stroke();
 
         ctx.save();
@@ -547,35 +561,42 @@
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = prize.accent;
-        ctx.font = "900 24px 'Microsoft YaHei', sans-serif";
+        ctx.shadowColor = prize.color === "#ef2443" ? "rgba(112,0,22,.22)" : "rgba(255,255,255,.8)";
+        ctx.shadowBlur = 2;
+        ctx.font = "900 25px 'Microsoft YaHei', sans-serif";
         wrapText(prize.cn, textX, textY - 11, 135, 28);
+        ctx.shadowBlur = 0;
         ctx.font = "700 15px Arial, sans-serif";
         ctx.fillText(prize.en, textX, textY + 32);
         ctx.restore();
       });
 
       ctx.beginPath();
-      ctx.arc(0, 0, 84, 0, Math.PI * 2);
-      ctx.fillStyle = "#ef1737";
+      ctx.arc(0, 0, 88, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffd05a";
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(0, 0, 72, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff";
+      ctx.arc(0, 0, 78, 0, Math.PI * 2);
+      const hubGradient = ctx.createRadialGradient(-25, -28, 5, 0, 0, 78);
+      hubGradient.addColorStop(0, "#ff7083");
+      hubGradient.addColorStop(.45, "#ee1738");
+      hubGradient.addColorStop(1, "#a90223");
+      ctx.fillStyle = hubGradient;
       ctx.fill();
-
-      if (logoImg.complete && logoImg.naturalWidth) {
-        const maxWidth = 124;
-        const maxHeight = 116;
-        const scale = Math.min(maxWidth / logoImg.naturalWidth, maxHeight / logoImg.naturalHeight);
-        const logoWidth = logoImg.naturalWidth * scale;
-        const logoHeight = logoImg.naturalHeight * scale;
-        ctx.drawImage(logoImg, -logoWidth / 2, -logoHeight / 2, logoWidth, logoHeight);
-      } else {
-        ctx.fillStyle = "#ef1737";
-        ctx.textAlign = "center";
-        ctx.font = "900 24px Arial, sans-serif";
-        ctx.fillText("MIXUE", 0, 8);
-      }
+      ctx.beginPath();
+      ctx.arc(-23, -27, 11, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,.3)";
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(90,0,20,.28)";
+      ctx.shadowBlur = 3;
+      ctx.font = "900 29px Arial, sans-serif";
+      ctx.fillText("MIXUE", 0, -5);
+      ctx.shadowBlur = 0;
+      ctx.font = "900 18px 'Microsoft YaHei', sans-serif";
+      ctx.fillText("幸运转盘", 0, 26);
       ctx.restore();
     }
 
@@ -745,10 +766,10 @@
         spinBtn.innerHTML = "开始抽奖&nbsp;&nbsp; SPIN NOW&nbsp; ›";
         const wonAt = testMode ? "" : singaporeTimestamp();
         resultMsg.innerHTML = testMode
-          ? `<img class="result-logo" src="assets/mixue-snow-king-logo.png" alt="蜜雪冰城雪王 Logo">
+          ? `<span class="result-brand">MIXUE</span>
              测试结果：${prize.cn}
              <span class="en">Test result: ${prize.en}. No record saved.</span>`
-          : `<img class="result-logo" src="assets/mixue-snow-king-logo.png" alt="蜜雪冰城雪王 Logo">
+          : `<span class="result-brand">MIXUE</span>
              恭喜获得：${prize.cn}
              <span class="en">You won: ${prize.en}. Screenshot to redeem.</span>
              <span class="receipt">
@@ -775,10 +796,6 @@
     });
     spinBtn.addEventListener("click", () => spin());
     testBtn.addEventListener("click", () => spin({ testMode: true }));
-    logoImg.addEventListener("load", () => {
-      if (!spinning) drawWheel(Number(canvas.dataset.rotation || 0));
-    });
-
     updateDateDisplay();
     setInterval(updateDateDisplay, 1000);
     drawWheel();
