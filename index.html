@@ -420,7 +420,7 @@
   <div class="page">
     <header class="brand">
       <div class="brand-mark">
-        <img src="../logo.png" alt="蜜雪冰城雪王 Logo">
+        <img src="./logo.png" alt="蜜雪冰城雪王 Logo">
       </div>
       <div>
         <div class="brand-name">蜜雪冰城 · 高文店</div>
@@ -500,7 +500,7 @@
     const phoneError = document.getElementById("phoneError");
     const resultMsg = document.getElementById("resultMsg");
     const dateDisplay = document.getElementById("dateDisplay");
-    const LOGO_URL = new URL("../logo.png", document.baseURI).href;
+    const LOGO_URL = new URL("./logo.png", document.baseURI).href;
     const logoImg = new Image();
     logoImg.src = LOGO_URL;
     const testModeEnabled = new URLSearchParams(window.location.search).get("test") === "1";
