@@ -360,6 +360,19 @@
       font-weight: 700;
       line-height: 1.55;
     }
+
+    .result-logo {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 7px;
+      display: block;
+      object-fit: contain;
+      background: #fff;
+      border: 2px solid #ffd0d8;
+      border-radius: 50%;
+      box-shadow: 0 5px 12px rgba(207, 18, 50, .14);
+    }
+
     .result.winner { animation: pop .45s cubic-bezier(.2, .9, .25, 1.25); }
 
     .note {
@@ -732,8 +745,11 @@
         spinBtn.innerHTML = "开始抽奖&nbsp;&nbsp; SPIN NOW&nbsp; ›";
         const wonAt = testMode ? "" : singaporeTimestamp();
         resultMsg.innerHTML = testMode
-          ? `测试结果：${prize.cn}<span class="en">Test result: ${prize.en}. No record saved.</span>`
-          : `恭喜获得：${prize.cn}
+          ? `<img class="result-logo" src="assets/mixue-snow-king-logo.png" alt="蜜雪冰城雪王 Logo">
+             测试结果：${prize.cn}
+             <span class="en">Test result: ${prize.en}. No record saved.</span>`
+          : `<img class="result-logo" src="assets/mixue-snow-king-logo.png" alt="蜜雪冰城雪王 Logo">
+             恭喜获得：${prize.cn}
              <span class="en">You won: ${prize.en}. Screenshot to redeem.</span>
              <span class="receipt">
                绑定手机号：${maskPhone(phone)}<br>
