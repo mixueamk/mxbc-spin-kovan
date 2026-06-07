@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ee1736">
+  <title>蜜雪冰城 Kovan 消暑转盘 | MIXUE Lucky Spin</title>
+  <style>
+    :root {
+      --red: #ed1636;
+      --red-dark: #bd0b28;
+      --red-soft: #fff0f3;
+      --blue: #dff4ff;
+      --ink: #271b24;
+      --muted: #88757f;
+      --white: #fff;
+      --gold: #ffc94a;
+      --shadow: 0 20px 48px rgba(126, 26, 51, .2);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-height: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: "Arial Rounded MT Bold", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 12% 25%, rgba(255,255,255,.9) 0 3px, transparent 4px),
+        radial-gradient(circle at 87% 37%, rgba(255,255,255,.7) 0 4px, transparent 5px),
+        linear-gradient(180deg, #ec1434 0 154px, #f8fdff 154px 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.55);
+      box-shadow: inset 8px 8px 18px rgba(255,255,255,.65);
+      pointer-events: none;
+    }
+
+    body::before { width: 84px; height: 84px; top: 202px; left: -35px; }
+    body::after { width: 120px; height: 120px; top: 330px; right: -55px; }
+
+    .page {
+      width: min(100%, 460px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: max(26px, env(safe-area-inset-bottom));
+      background:
+        linear-gradient(180deg, transparent 0 144px, rgba(218,243,255,.94) 144px 58%, #f7fcff 100%);
+      box-shadow: 0 0 80px rgba(46, 129, 174, .12);
+    }
+
+    .brand {
+      height: 142px;
+      padding: 24px 22px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 13px;
+      color: white;
+      text-align: left;
+      position: relative;
+    }
+
+    .brand::after {
+      content: "";
+      position: absolute;
+      bottom: -18px;
+      left: -4%;
+      width: 108%;
+      height: 35px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 8px 0 rgba(194, 232, 252, .9);
+    }
+
+    .brand-mark {
+      width: 66px;
+      height: 66px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      padding: 3px;
+      background: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      box-shadow: 0 5px 14px rgba(135, 0, 25, .18);
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .brand-name { font-size: 28px; font-weight: 900; letter-spacing: .02em; }
+    .brand-store { margin-top: 3px; font-size: 12px; font-weight: 700; letter-spacing: .08em; opacity: .88; }
+
+    main { padding: 40px 18px 0; }
+
+    .heading { text-align: center; color: var(--red); }
+    .heading h1 {
+      margin: 0;
+      font-size: clamp(27px, 7.4vw, 35px);
+      line-height: 1.15;
+      letter-spacing: .04em;
+      text-shadow: 0 3px 0 white;
+    }
+    .heading p {
+      margin: 8px 0 13px;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .24em;
+    }
+
+    .date-display {
+      width: max-content;
+      max-width: 100%;
+      margin: 0 auto 16px;
+      padding: 9px 18px;
+      color: white;
+      background: linear-gradient(180deg, #ff3451, #e60d2e);
+      border: 2px solid white;
+      border-radius: 999px;
+      box-shadow: 0 5px 0 rgba(174, 20, 45, .22);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .wheel-stage {
+      position: relative;
+      width: min(92vw, 394px);
+      aspect-ratio: 1;
+      margin: 0 auto 17px;
+      display: grid;
+      place-items: center;
+    }
+
+    .wheel-glow {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ff5168, #b90727);
+      box-shadow:
+        0 18px 30px rgba(180, 15, 45, .28),
+        0 0 0 7px white,
+        0 0 0 10px rgba(230, 20, 51, .28);
+    }
+
+    .wheel-lights {
+      position: absolute;
+      inset: 7px;
+      z-index: 1;
+      border-radius: 50%;
+      background: repeating-conic-gradient(
+        from -4deg,
+        transparent 0deg 12deg,
+        rgba(255, 222, 114, .95) 12deg 15deg,
+        transparent 15deg 27deg
+      );
+      filter: drop-shadow(0 0 4px white);
+      pointer-events: none;
+    }
+
+    canvas {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: calc(100% - 44px);
+      height: calc(100% - 44px);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255,255,255,.92);
+    }
+
+    .pointer {
+      position: absolute;
+      z-index: 5;
+      top: 8px;
+      left: 50%;
+      width: 44px;
+      height: 58px;
+      transform: translateX(-50%);
+      filter: drop-shadow(0 5px 3px rgba(110, 5, 26, .28));
+    }
+
+    .pointer::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 31px;
+      height: 31px;
+      transform: translateX(-50%) rotate(45deg);
+      background: linear-gradient(135deg, #ff3a57, #c70c2d);
+      border: 4px solid white;
+      border-radius: 7px 50% 50% 50%;
+    }
+
+    .panel {
+      margin-top: -6px;
+      padding: 22px 18px 18px;
+      background: rgba(255,255,255,.95);
+      border: 1px solid rgba(224, 237, 244, .95);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 9px;
+      text-align: center;
+      color: #3c3036;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .phone-field {
+      display: flex;
+      align-items: center;
+      height: 55px;
+      overflow: hidden;
+      border: 2px solid #eadfe3;
+      border-radius: 15px;
+      background: white;
+      transition: .2s ease;
+    }
+
+    .phone-field:focus-within {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(237, 22, 54, .1);
+    }
+
+    .country-code {
+      height: 30px;
+      padding: 0 13px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      border-right: 1px solid #e8dde2;
+      color: #4f4248;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .flag {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      background: linear-gradient(#ee1d3d 0 50%, white 50%);
+      box-shadow: 0 0 0 1px #ddd;
+      font-size: 8px;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      height: 100%;
+      padding: 0 14px;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+      font: 800 17px/1 inherit;
+      letter-spacing: .05em;
+    }
+    input::placeholder { color: #aaa0a5; font-size: 14px; font-weight: 600; letter-spacing: 0; }
+    input:disabled {
+      color: #5e5157;
+      background: #f7f3f5;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    .phone-field.locked {
+      border-color: #f3a1af;
+      background: #f7f3f5;
+    }
+
+    .error {
+      min-height: 19px;
+      padding: 5px 4px 0;
+      color: var(--red-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    button {
+      width: 100%;
+      height: 59px;
+      border: 0;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(180deg, #ff3450, #e80c2d);
+      box-shadow: 0 7px 0 #b80725, 0 13px 22px rgba(225, 16, 49, .25);
+      font: 900 19px/1 inherit;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+    }
+    button:hover { filter: brightness(1.04); transform: translateY(-1px); }
+    button:active { transform: translateY(5px); box-shadow: 0 2px 0 #b80725; }
+    button:disabled { cursor: wait; filter: grayscale(.2); opacity: .72; }
+
+    .test-controls[hidden] { display: none; }
+
+    .test-btn {
+      height: 45px;
+      margin-top: 14px;
+      color: var(--red);
+      background: #fff;
+      border: 1.5px solid #ff9aaa;
+      box-shadow: 0 4px 0 #ffd3da;
+      font-size: 14px;
+    }
+    .test-btn:hover { background: #fff7f8; }
+    .test-btn:active { box-shadow: 0 1px 0 #ffd3da; }
+
+    .test-note {
+      margin-top: 8px;
+      color: #a08f97;
+      text-align: center;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .result {
+      min-height: 83px;
+      margin-top: 20px;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--red);
+      background: linear-gradient(135deg, #fff8f9, #fff);
+      border: 1.5px dashed #ff9aaa;
+      border-radius: 17px;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.5;
+    }
+    .result .en { display: block; color: var(--muted); font-size: 12px; font-weight: 600; }
+    .result .receipt {
+      display: block;
+      margin-top: 7px;
+      color: #55464d;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+    .result.winner { animation: pop .45s cubic-bezier(.2, .9, .25, 1.25); }
+
+    .note {
+      margin: 13px 2px 0;
+      padding: 13px 11px;
+      color: #51434a;
+      background: #fff;
+      border: 1px solid #eee3e7;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+    .note .en { display: block; color: #978b91; font-size: 10px; font-weight: 500; }
+
+    @keyframes pop {
+      0% { transform: scale(.92); opacity: .4; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 370px) {
+      main { padding-inline: 12px; }
+      .brand-name { font-size: 24px; }
+      .wheel-stage { width: 92vw; }
+      .panel { padding-inline: 14px; border-radius: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="brand">
+      <div class="brand-mark">
+        <img src="assets/mixue-snow-king-logo.png" alt="蜜雪冰城雪王 Logo">
+      </div>
+      <div>
+        <div class="brand-name">蜜雪冰城</div>
+        <div class="brand-store">MIXUE · KOVAN</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="heading" aria-labelledby="page-title">
+        <h1 id="page-title">今日好运，一转即来</h1>
+        <p>TODAY'S LUCKY SPIN</p>
+      </section>
+
+      <div class="date-display" id="dateDisplay" aria-label="新加坡当前日期时间"></div>
+
+      <div class="wheel-stage" aria-label="抽奖转盘">
+        <div class="wheel-glow"></div>
+        <div class="wheel-lights"></div>
+        <div class="pointer" aria-hidden="true"></div>
+        <canvas id="wheelCanvas" width="720" height="720"></canvas>
+      </div>
+
+      <section class="panel" aria-label="抽奖信息">
+        <label class="field-label" for="phoneInput">输入新加坡手机号</label>
+        <div class="phone-field">
+          <div class="country-code"><span class="flag">SG</span>+65</div>
+          <input
+            type="tel"
+            inputmode="numeric"
+            autocomplete="tel-national"
+            maxlength="8"
+            id="phoneInput"
+            placeholder="SG Mobile · 8 digits"
+            aria-describedby="phoneError"
+          >
+        </div>
+        <div class="error" id="phoneError" role="alert"></div>
+
+        <button id="spinBtn" type="button">开始抽奖&nbsp;&nbsp; SPIN NOW&nbsp; ›</button>
+        <div class="test-controls" id="testControls" hidden>
+          <button class="test-btn" id="testBtn" type="button">测试转盘 · TEST SPIN</button>
+          <div class="test-note">测试不会保存记录，也不会上传中奖数据</div>
+        </div>
+
+        <div class="result" id="resultMsg" aria-live="polite">
+          抽奖结果将在这里
+          <span class="en">Your lucky result will appear here</span>
+        </div>
+
+        <div class="note">
+          每天每号限抽1次，请截图保存，到店出示兑换
+          <span class="en">Once per day. Screenshot &amp; show in store to redeem.</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcdpr58FN8f2s2V-_x_UfBIBA7p9rs2SBT5yB3BxHc_0bL8ewQY4B0o6d-qZeN6Qo/exec";
+    const PRIZES = [
+      { cn: "整杯免单", en: "Free Drink", color: "#fff8ec", accent: "#f4b51e", weight: 5 },
+      { cn: "免费加二份小料", en: "2x Free Toppings", color: "#ef2443", accent: "#fff", weight: 15 },
+      { cn: "芋圆一份免费", en: "Free Taro Balls", color: "#fff8ec", accent: "#e51d3c", weight: 15 },
+      { cn: "蜜雪钥匙扣", en: "MIXUE Keychain", color: "#ef2443", accent: "#fff", weight: 10 },
+      { cn: "谢谢参与", en: "Try Again", color: "#fff8ec", accent: "#e51d3c", weight: 15 },
+      { cn: "第二杯半价", en: "2nd Cup 50% Off", color: "#ef2443", accent: "#fff", weight: 40 }
+    ];
+
+    const weightedPrizes = PRIZES.flatMap((prize, index) => Array(prize.weight).fill(index));
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const spinBtn = document.getElementById("spinBtn");
+    const phoneField = document.querySelector(".phone-field");
+    const testControls = document.getElementById("testControls");
+    const testBtn = document.getElementById("testBtn");
+    const phoneInput = document.getElementById("phoneInput");
+    const phoneError = document.getElementById("phoneError");
+    const resultMsg = document.getElementById("resultMsg");
+    const dateDisplay = document.getElementById("dateDisplay");
+    const logoImg = new Image();
+    logoImg.src = "assets/mixue-snow-king-logo.png";
+    const testModeEnabled = new URLSearchParams(window.location.search).get("test") === "1";
+    let spinning = false;
+    let testPrizeIndex = 0;
+
+    testControls.hidden = !testModeEnabled;
+
+    function updateDateDisplay() {
+      const now = new Date();
+      const text = new Intl.DateTimeFormat("zh-CN", {
+        timeZone: "Asia/Singapore",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).format(now);
+      dateDisplay.textContent = `▣  ${text} SGT`;
+    }
+
+    function drawWheel(rotationDeg = 0) {
+      const size = canvas.width;
+      const center = size / 2;
+      const radius = center - 8;
+      const step = Math.PI * 2 / PRIZES.length;
+      const rotation = rotationDeg * Math.PI / 180;
+
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.translate(center, center);
+
+      PRIZES.forEach((prize, index) => {
+        const start = index * step + rotation - Math.PI / 2 - step / 2;
+        const end = start + step;
+        const middle = start + step / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = prize.color;
+        ctx.fill();
+        ctx.strokeStyle = "#f8bd43";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.save();
+        const textRadius = radius * .61;
+        const textX = Math.cos(middle) * textRadius;
+        const textY = Math.sin(middle) * textRadius;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = prize.accent;
+        ctx.font = "900 24px 'Microsoft YaHei', sans-serif";
+        wrapText(prize.cn, textX, textY - 11, 135, 28);
+        ctx.font = "700 15px Arial, sans-serif";
+        ctx.fillText(prize.en, textX, textY + 32);
+        ctx.restore();
+      });
+
+      ctx.beginPath();
+      ctx.arc(0, 0, 84, 0, Math.PI * 2);
+      ctx.fillStyle = "#ef1737";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, 0, 72, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+
+      if (logoImg.complete && logoImg.naturalWidth) {
+        const maxWidth = 124;
+        const maxHeight = 116;
+        const scale = Math.min(maxWidth / logoImg.naturalWidth, maxHeight / logoImg.naturalHeight);
+        const logoWidth = logoImg.naturalWidth * scale;
+        const logoHeight = logoImg.naturalHeight * scale;
+        ctx.drawImage(logoImg, -logoWidth / 2, -logoHeight / 2, logoWidth, logoHeight);
+      } else {
+        ctx.fillStyle = "#ef1737";
+        ctx.textAlign = "center";
+        ctx.font = "900 24px Arial, sans-serif";
+        ctx.fillText("MIXUE", 0, 8);
+      }
+      ctx.restore();
+    }
+
+    function wrapText(text, x, y, maxWidth, lineHeight) {
+      let line = "";
+      const lines = [];
+      for (const char of text) {
+        const test = line + char;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = char;
+        } else {
+          line = test;
+        }
+      }
+      lines.push(line);
+      const offset = (lines.length - 1) * lineHeight / 2;
+      lines.forEach((value, index) => ctx.fillText(value, x, y - offset + index * lineHeight));
+    }
+
+    function getRandomPrizeIndex() {
+      return weightedPrizes[Math.floor(Math.random() * weightedPrizes.length)];
+    }
+
+    function isValidSgPhone(phone) {
+      return /^[89]\d{7}$/.test(phone);
+    }
+
+    function getRecords() {
+      try { return JSON.parse(localStorage.getItem("mixue_spin_records")) || {}; }
+      catch { return {}; }
+    }
+
+    function todayKey() {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Singapore",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+      const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+      return `${values.year}-${values.month}-${values.day}`;
+    }
+
+    function hasSpunToday(phone) {
+      return getRecords()[phone]?.date === todayKey();
+    }
+
+    function saveSpinRecord(phone, prize, redemptionCode, wonAt) {
+      const records = getRecords();
+      records[phone] = {
+        date: todayKey(),
+        prize: prize.cn,
+        redemptionCode,
+        wonAt
+      };
+      localStorage.setItem("mixue_spin_records", JSON.stringify(records));
+    }
+
+    function maskPhone(phone) {
+      return `+65 ${phone.slice(0, 2)}••${phone.slice(-4)}`;
+    }
+
+    function singaporeTimestamp() {
+      return new Intl.DateTimeFormat("zh-CN", {
+        timeZone: "Asia/Singapore",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).format(new Date());
+    }
+
+    function createRedemptionCode(phone) {
+      const seed = `${phone}-${Date.now()}-${Math.random()}`;
+      let hash = 2166136261;
+      for (let index = 0; index < seed.length; index++) {
+        hash ^= seed.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+      return `KV-${Math.abs(hash >>> 0).toString(36).toUpperCase().padStart(7, "0").slice(0, 7)}`;
+    }
+
+    async function logToSheet(phone, prize, redemptionCode, wonAt) {
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone,
+            prize: prize.cn,
+            redemptionCode,
+            wonAt,
+            store: "MIXUE Kovan"
+          })
+        });
+      } catch (error) {
+        console.info("Prize logging will retry next time.", error);
+      }
+    }
+
+    function showError(message) {
+      phoneError.textContent = message;
+      phoneInput.focus();
+    }
+
+    function spin({ testMode = false } = {}) {
+      if (spinning) return;
+      const phone = phoneInput.value.replace(/\D/g, "");
+      phoneInput.value = phone;
+      phoneError.textContent = "";
+
+      if (!testMode && !isValidSgPhone(phone)) {
+        showError("请输入 8 位、以 8 或 9 开头的新加坡手机号");
+        return;
+      }
+      if (!testMode && hasSpunToday(phone)) {
+        showError("这个手机号今天已经抽过啦，明天再来！");
+        return;
+      }
+
+      spinning = true;
+      spinBtn.disabled = true;
+      testBtn.disabled = true;
+      if (!testMode) {
+        phoneInput.disabled = true;
+        phoneField.classList.add("locked");
+      }
+      spinBtn.textContent = testMode ? "测试旋转中...  TESTING" : "好运旋转中...  SPINNING";
+      resultMsg.classList.remove("winner");
+      resultMsg.innerHTML = testMode
+        ? '正在测试转盘动画<span class="en">Test mode does not save any records</span>'
+        : '好运正在路上<span class="en">Your lucky prize is on the way</span>';
+
+      const prizeIndex = testMode ? testPrizeIndex : getRandomPrizeIndex();
+      if (testMode) testPrizeIndex = (testPrizeIndex + 1) % PRIZES.length;
+      const prize = PRIZES[prizeIndex];
+      const redemptionCode = testMode ? "" : createRedemptionCode(phone);
+      const stepDeg = 360 / PRIZES.length;
+      const current = Number(canvas.dataset.rotation || 0);
+      const normalized = ((current % 360) + 360) % 360;
+      const target = (360 - prizeIndex * stepDeg) % 360;
+      const delta = (target - normalized + 360) % 360;
+      const total = delta + 360 * (6 + Math.floor(Math.random() * 3));
+      const startTime = performance.now();
+      const duration = testMode ? 2200 : 4200;
+
+      function animate(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 4);
+        const rotation = current + total * eased;
+        drawWheel(rotation);
+        canvas.dataset.rotation = rotation;
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+          return;
+        }
+
+        spinning = false;
+        spinBtn.disabled = false;
+        testBtn.disabled = false;
+        spinBtn.innerHTML = "开始抽奖&nbsp;&nbsp; SPIN NOW&nbsp; ›";
+        const wonAt = testMode ? "" : singaporeTimestamp();
+        resultMsg.innerHTML = testMode
+          ? `测试结果：${prize.cn}<span class="en">Test result: ${prize.en}. No record saved.</span>`
+          : `恭喜获得：${prize.cn}
+             <span class="en">You won: ${prize.en}. Screenshot to redeem.</span>
+             <span class="receipt">
+               绑定手机号：${maskPhone(phone)}<br>
+               中奖时间：${wonAt} SGT<br>
+               兑换编号：${redemptionCode}
+             </span>`;
+        resultMsg.classList.add("winner");
+        if (!testMode) {
+          saveSpinRecord(phone, prize, redemptionCode, wonAt);
+          logToSheet(phone, prize, redemptionCode, wonAt);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    phoneInput.addEventListener("input", () => {
+      phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 8);
+      phoneError.textContent = "";
+    });
+    phoneInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") spin();
+    });
+    spinBtn.addEventListener("click", () => spin());
+    testBtn.addEventListener("click", () => spin({ testMode: true }));
+    logoImg.addEventListener("load", () => {
+      if (!spinning) drawWheel(Number(canvas.dataset.rotation || 0));
+    });
+
+    updateDateDisplay();
+    setInterval(updateDateDisplay, 1000);
+    drawWheel();
+    canvas.dataset.rotation = "0";
+  </script>
+</body>
+</html>
