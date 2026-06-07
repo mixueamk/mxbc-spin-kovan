@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#ee1736">
-  <title>蜜雪冰城 Kovan 消暑转盘 | MIXUE Lucky Spin</title>
+  <title>蜜雪冰城 · 高文店 消暑转盘 | MIXUE Kovan Lucky Spin</title>
   <style>
     :root {
       --red: #ed1636;
@@ -85,16 +85,21 @@
     .brand-mark {
       width: 66px;
       height: 66px;
-      display: grid;
-      place-items: center;
       flex: 0 0 auto;
-      color: var(--red);
+      overflow: hidden;
+      padding: 3px;
       background: white;
       border: 3px solid white;
       border-radius: 50%;
       box-shadow: 0 5px 14px rgba(135, 0, 25, .18);
-      font: 900 14px/1 Arial, sans-serif;
-      letter-spacing: -.03em;
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      border-radius: 50%;
     }
 
     .brand-name { font-size: 28px; font-weight: 900; letter-spacing: .02em; }
@@ -365,20 +370,17 @@
       line-height: 1.55;
     }
 
-    .result-brand {
-      width: 70px;
-      height: 52px;
+    .result-logo {
+      width: 62px;
+      height: 62px;
       margin: 0 auto 7px;
-      display: grid;
-      place-items: center;
-      color: #fff;
-      background: linear-gradient(145deg, #ff3c58, #cf092b);
+      display: block;
+      object-fit: contain;
+      background: #fff;
       border: 3px solid #fff;
-      border-radius: 17px;
+      border-radius: 50%;
       box-shadow: 0 5px 12px rgba(207, 18, 50, .14);
       outline: 1px solid #ffd0d8;
-      font: 900 14px/1 Arial, sans-serif;
-      letter-spacing: .02em;
     }
 
     .result.winner { animation: pop .45s cubic-bezier(.2, .9, .25, 1.25); }
@@ -417,9 +419,11 @@
 <body>
   <div class="page">
     <header class="brand">
-      <div class="brand-mark" aria-label="MIXUE">MIXUE</div>
+      <div class="brand-mark">
+        <img src="../logo.png" alt="蜜雪冰城雪王 Logo">
+      </div>
       <div>
-        <div class="brand-name">蜜雪冰城</div>
+        <div class="brand-name">蜜雪冰城 · 高文店</div>
         <div class="brand-store">MIXUE · KOVAN</div>
       </div>
     </header>
@@ -496,6 +500,9 @@
     const phoneError = document.getElementById("phoneError");
     const resultMsg = document.getElementById("resultMsg");
     const dateDisplay = document.getElementById("dateDisplay");
+    const LOGO_URL = new URL("../logo.png", document.baseURI).href;
+    const logoImg = new Image();
+    logoImg.src = LOGO_URL;
     const testModeEnabled = new URLSearchParams(window.location.search).get("test") === "1";
     let spinning = false;
     let testPrizeIndex = 0;
@@ -577,26 +584,23 @@
       ctx.fill();
       ctx.beginPath();
       ctx.arc(0, 0, 78, 0, Math.PI * 2);
-      const hubGradient = ctx.createRadialGradient(-25, -28, 5, 0, 0, 78);
-      hubGradient.addColorStop(0, "#ff7083");
-      hubGradient.addColorStop(.45, "#ee1738");
-      hubGradient.addColorStop(1, "#a90223");
-      ctx.fillStyle = hubGradient;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(-23, -27, 11, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255,255,255,.3)";
-      ctx.fill();
       ctx.fillStyle = "#fff";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.shadowColor = "rgba(90,0,20,.28)";
-      ctx.shadowBlur = 3;
-      ctx.font = "900 29px Arial, sans-serif";
-      ctx.fillText("MIXUE", 0, -5);
-      ctx.shadowBlur = 0;
-      ctx.font = "900 18px 'Microsoft YaHei', sans-serif";
-      ctx.fillText("幸运转盘", 0, 26);
+      ctx.fill();
+
+      if (logoImg.complete && logoImg.naturalWidth) {
+        const maxWidth = 132;
+        const maxHeight = 124;
+        const scale = Math.min(maxWidth / logoImg.naturalWidth, maxHeight / logoImg.naturalHeight);
+        const logoWidth = logoImg.naturalWidth * scale;
+        const logoHeight = logoImg.naturalHeight * scale;
+        ctx.drawImage(logoImg, -logoWidth / 2, -logoHeight / 2, logoWidth, logoHeight);
+      } else {
+        ctx.fillStyle = "#ed1636";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "900 26px Arial, sans-serif";
+        ctx.fillText("MIXUE", 0, 3);
+      }
       ctx.restore();
     }
 
@@ -766,10 +770,10 @@
         spinBtn.innerHTML = "开始抽奖&nbsp;&nbsp; SPIN NOW&nbsp; ›";
         const wonAt = testMode ? "" : singaporeTimestamp();
         resultMsg.innerHTML = testMode
-          ? `<span class="result-brand">MIXUE</span>
+          ? `<img class="result-logo" src="${LOGO_URL}" alt="蜜雪冰城雪王 Logo">
              测试结果：${prize.cn}
              <span class="en">Test result: ${prize.en}. No record saved.</span>`
-          : `<span class="result-brand">MIXUE</span>
+          : `<img class="result-logo" src="${LOGO_URL}" alt="蜜雪冰城雪王 Logo">
              恭喜获得：${prize.cn}
              <span class="en">You won: ${prize.en}. Screenshot to redeem.</span>
              <span class="receipt">
@@ -796,6 +800,9 @@
     });
     spinBtn.addEventListener("click", () => spin());
     testBtn.addEventListener("click", () => spin({ testMode: true }));
+    logoImg.addEventListener("load", () => {
+      if (!spinning) drawWheel(Number(canvas.dataset.rotation || 0));
+    });
     updateDateDisplay();
     setInterval(updateDateDisplay, 1000);
     drawWheel();
